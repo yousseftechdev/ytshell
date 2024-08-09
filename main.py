@@ -313,6 +313,10 @@ def main() -> None:
                     os.makedirs(args, exist_ok=True)
                     os.chdir(args)
                     subprocess.run("git init", shell=True)
+                    subprocess.run("touch .gitignore", shell=True)
+                    subprocess.run("touch README.md", shell=True)
+                    subprocess.run(f"echo '# {args}' > README.md", shell=True)
+                    subprocess.run("echo '*test\ntest*\nTest*\n*Test\n*.log' > .gitignore", shell=True)
             case "neofun":
                 print("""
 ⡆⣐⢕⢕⢕⢕⢕⢕⢕⢕⠅⢗⢕⢕⢕⢕⢕⢕⢕⠕⠕⢕⢕⢕⢕⢕⢕⢕⢕⢕
