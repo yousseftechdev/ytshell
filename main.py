@@ -3,104 +3,41 @@ import os
 import sys
 import pyautogui
 import time
+from funcs import *
+import datetime
+import termcolor
 
 sys.stdout.write("\x1b]2;YTShell\x07")
 
-commands = ["help", "mc", "neofun", "fuckyou", "gc", "dev", "cd", "mkcd", "setrepo", "uprepo", "sp", "url", "cleanup", "lsc", "brc", "zrc", "exit", "touch", "rm", "mv", "cp", "grep", "find", "cat", "echo", "date", "pwd", "ai", "ask"]
-try:
-    pathFile = open(f"{os.path.expanduser('~')}/.config/ytshell/pathToJar.txt", "x")
-    pathFile.close()
-except:
-    pass
+readCmdFile = open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "r")
 
-def get_all_commands():
-    try:
-        paths = os.getenv("PATH", "").split(os.pathsep)
-        system_commands = set()
-        for path in paths:
-            if os.path.isdir(path):
-                for item in os.listdir(path):
-                    if os.access(os.path.join(path, item), os.X_OK):
-                        system_commands.add(item)
-    except Exception as e:
-        system_commands = set()
-        print(f"Error retrieving system commands: {e}")
-
-    all_commands = system_commands.union(commands)
-    return sorted(all_commands)
-
-def usage_message(command):
-    if command == "dev":
-        print("Usage: dev (OPTION)")
-        print(
-            "Options:\n-info : Pulls up the developer's portfolio in a browser.\n-yt : Pulls up the developer's YouTube channel.\n-discord : Outputs the developer's discord username and his server.\n-github : Pulls up the developer's github profile in a browser."
-        )
-    elif command == "cd":
-        print("Usage: cd (DIRECTORY)")
-        print("Changes the current working directory to the specified argument")
-    elif command == "mkcd":
-        print("Usage: mkcd (DIRECTORY)")
-        print("Creates a directory with the name of the argument and changes the current working directory to that directory")
-    elif command == "sp":
-        print("Usage: sp (OPTION)")
-        print(
-            "Options:\n-web : Creates a project structure for a web project.\n-py : Creates a project structure for a Python project.\n-cpp : Creates a project structure for a C++ project."
-        )
-    elif command == "cleanup":
-        print("Usage: cleanup")
-        print("Cleans up your system from unused packages")
-    elif command == "lsc":
-        print("Usage: lsc")
-        print("Lists all custom commands added by the shell")
-    elif command == "touch":
-        print("Usage: touch (FILE)")
-        print("Creates a new empty file with the specified name")
-    elif command == "rm":
-        print("Usage: rm (FILE/DIRECTORY)")
-        print("Removes the specified file or directory")
-    elif command == "mv":
-        print("Usage: mv (SOURCE) (DESTINATION)")
-        print("Moves or renames files and directories")
-    elif command == "cp":
-        print("Usage: cp (SOURCE) (DESTINATION)")
-        print("Copies files and directories")
-    elif command == "grep":
-        print("Usage: grep (PATTERN) (FILE)")
-        print("Searches for the specified pattern in the file")
-    elif command == "find":
-        print("Usage: find (PATH) (EXPRESSION)")
-        print("Searches for files and directories within the file system")
-    elif command == "cat":
-        print("Usage: cat (FILE)")
-        print("Displays the content of the specified file")
-    elif command == "echo":
-        print("Usage: echo (TEXT) (OPTIONAL: FILE)")
-        print("Outputs text to terminal or file")
-    elif command == "gc":
-        print("Usage: gc (REPO URL)")
-        print("Clones the repository from the provided url")
-    elif command == "ask":
-        print("Usage: ai (OPTION) (QUESTION)")
-        print("Options:\n-ai : Asks chatgpt\n-ggl : Asks google\n-rdt : Makes a post draft on reddit, title, body, and sub should be seperated by a '---'")
-    elif command == "setrepo":
-        print("Usage: setrepo (REPO NAME)")
-        print("creates a folder with the name provided and initializes it as a git repository")
-        
-def is_interactive():
-    try:
-        return os.isatty(sys.stdin.fileno())
-    except Exception:
-        return False
+commands = readCmdFile.read().split(", ")
+commands[-1] = commands[-1].strip("\n")
 
 def main() -> None:
     all_commands = get_all_commands()
-
     while True:
         dir = os.getcwd()
-        fdir = f"╭─ ~{dir.split('/home')[1]}\n╰─ $ " if "/home" in dir else f"╭─ {dir}\n╰─ $ "
+        currentFolder = os.getcwd().split("/")[-1]
+        if currentFolder == os.path.expanduser("~").split("/home/")[1]:
+            currentFolder = ""
 
+        fdir = ' '+dir.replace(os.path.expanduser('~'), '~').strip(currentFolder)
+        sys.stdout.write(f"\x1b]2;YTShell - {dir}\x07")
+        dt = datetime.datetime.now()
+        ftime = dt.strftime('%H:%M:%S  %d/%m/%y')
+        themeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/theme.txt", "r")
+        colors = themeFile.read().split(",")
+        promptBg = colors[0].split("prompt-bg = ")[1]
+        promptTxt = colors[1].split("prompt-txt = ")[1]
+        timeBg = colors[2].split("time-bg = ")[1]
+        timeTxt = colors[3].split("time-txt = ")[1]
+        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder+' ', promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored('', promptBg)}·······························{termcolor.colored('', timeBg)+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ $ " # type: ignore
         if is_interactive():
-            cmd = input(fdir)
+            cmd = input(prompt)
+            historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
+            historyFile.write(f"{cmd}         {ftime}\n\n")
+            historyFile.close()
         else:
             print("Running in a non-interactive mode. Exiting.")
             break
@@ -120,6 +57,7 @@ def main() -> None:
                 if cmd == "ls":
                     subprocess.run(f"ls --color=auto {args}", shell=True)
                 else:
+                    print("Not implemented, running with bash.")
                     subprocess.run(cmd, shell=True)
             case "help":
                 print(
@@ -143,7 +81,7 @@ def main() -> None:
                         usage_message("dev")
             case "cd":
                 if not args:
-                    usage_message("")
+                    os.chdir(os.path.expanduser("~"))
                 else:
                     try:
                         os.chdir(args)
@@ -155,7 +93,7 @@ def main() -> None:
                         print(f"Permission denied: {args}")
             case "mkcd":
                 if not args:
-                    usage_message("")
+                    usage_message("mkcd")
                 else:
                     os.makedirs(args, exist_ok=True)
                     os.chdir(args)
@@ -191,8 +129,9 @@ def main() -> None:
             case "url":
                 subprocess.run(f"xdg-open {args}", shell=True)
             case "lsc":
+                sort = sorted(commands)
                 for i in range(len(commands)):
-                    print(f"{i+1}. {commands[i]}")
+                    print(f"{i+1}. {sort[i]}")
             case "brc":
                 subprocess.run("vim ~/.bashrc", shell=True)
             case "zrc":
@@ -359,9 +298,25 @@ def main() -> None:
 ⠄⠄⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣾⣿⣿⡿⠟⠄⠄
 ⠠⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄
 """)
+            case "vsc":
+                subprocess.run("code", shell=True)
+            case "vsci":
+                subprocess.run("code-insiders", shell=True)
+            case "history":
+                if not args:
+                    historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "r")
+                    print(historyFile.read())
+                    historyFile.close()
+                elif "-clear" in args:
+                    historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "w")
+                    historyFile.write("")
+                    historyFile.close()
+                else:
+                    usage_message("history")
             case "exit":
                 exit()
         print("\n")
 
 if __name__ == "__main__":
+    setup()
     main()

@@ -3,3 +3,5 @@ test*
 Test*
 *Test
 *.log
+commands.txt
+__pycache__
