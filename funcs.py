@@ -3,10 +3,6 @@ import sys
 import turtle
 from math import * # type: ignore
 
-readCmdFile = open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "r")
-
-commands = readCmdFile.read().split(",\n")
-
 # Graph setup
 ww = 1800
 wh = 800
@@ -15,9 +11,51 @@ hww = ww/2
 hwh = wh/2
 
 def setup():
+    os.makedirs(f"{os.path.expanduser('~')}/.config/ytshell", exist_ok=True)
     pathFile = open(f"{os.path.expanduser('~')}/.config/ytshell/pathToJar.txt", "a")
     pathFile.close()
     commandsFile = open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "a")
+    if os.path.getsize(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt") == 0:
+        commandsFile.write("""help,
+mc,
+neofun,
+fuckyou,
+gc,
+dev,
+cd,
+mkcd,
+setrepo,
+uprepo,
+sp,
+url,
+cleanup,
+lsc,
+brc,
+zrc,
+exit,
+touch,
+rm,
+mv,
+cp,
+grep,
+find,
+cat,
+echo,
+date,
+pwd,
+ai,
+ask,
+vsc,
+vsci,
+history,
+ytpm,
+theme,
+test,
+tree,
+config,
+graph,
+sudo,
+root""")
     commandsFile.close()
     historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
     historyFile.close()
@@ -36,10 +74,9 @@ stat-err-txt=white""")
     themeFile.close()
     configFile = open(f"{os.path.expanduser('~')}/.config/ytshell/config.txt", "a")
     if os.path.getsize(f"{os.path.expanduser('~')}/.config/ytshell/config.txt") == 0:
-        configFile.write("""time=True
-timeFormat=%H:%M:%S-%d/%m/%y
-promptChar=$
-""")
+        configFile.write("""time=True,
+timeFormat=%H:%M:%S-%d/%m/%y,
+promptChar=$""")
     configFile.close()
 
 def get_all_commands():
@@ -54,7 +91,9 @@ def get_all_commands():
     except Exception as e:
         system_commands = set()
         print(f"Error retrieving system commands: {e}")
-
+    readCmdFile = open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "r")
+    commands = readCmdFile.read().split(",\n")
+    readCmdFile.close()
     all_commands = system_commands.union(commands)
     return sorted(all_commands)
 

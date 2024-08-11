@@ -6,12 +6,12 @@ import time
 from funcs import *
 import datetime
 import termcolor
-import turtle
+
+setup()
 
 sys.stdout.write("\x1b]2;YTShell\x07")
 
 readCmdFile = open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "r")
-
 commands = readCmdFile.read().split(",\n")
 commands[-1] = commands[-1].strip("\n")
 
@@ -24,8 +24,9 @@ def main() -> None:
         try:
             dir = os.getcwd()
             currentFolder = os.getcwd().split("/")[-1]
-            if currentFolder == os.path.expanduser("~").split("/home/")[1]:
-                currentFolder = ""
+            if os.getuid() != 0:
+                if currentFolder == os.path.expanduser("~").split("/home/")[1]:
+                    currentFolder = ""
 
             fdir = ' '+dir.replace(os.path.expanduser('~'), '~').strip(currentFolder)
             sys.stdout.write(f"\x1b]2;YTShell - {dir}\x07")
@@ -46,22 +47,40 @@ def main() -> None:
             statTxt = colors[5].split("stat-txt=")[1]
             statErrBg = colors[6].split("stat-err-bg=")[1]
             statErrTxt = colors[7].split("stat-err-txt=")[1]
-            if timeInPrompt == "t" or timeInPrompt == "T" or timeInPrompt == "true" or timeInPrompt == "True":
-                if completedProcess != -200:
-                    if completedProcess == 0:
-                        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+'@dell-inspiron - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', statBg)+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}')+termcolor.colored('', timeBg, f'on_{statBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+            if os.getuid() == 0:
+                if timeInPrompt == "t" or timeInPrompt == "T" or timeInPrompt == "true" or timeInPrompt == "True":
+                    if completedProcess != -200:
+                        if completedProcess == 0:
+                            prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold'])+termcolor.colored(' ] ', 'white', 'on_red')+termcolor.colored('', 'red')}·················{termcolor.colored('', statBg)+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}')+termcolor.colored('', timeBg, f'on_{statBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                        else:
+                            prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold'])+termcolor.colored(' ] ', 'white', 'on_red')+termcolor.colored('', 'red')}·················{termcolor.colored('', statErrBg)+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}')+termcolor.colored('', timeBg, f'on_{statErrBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
                     else:
-                        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+'@dell-inspiron - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', statErrBg)+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}')+termcolor.colored('', timeBg, f'on_{statErrBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                        prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold'])+termcolor.colored(' ] ', 'white', 'on_red')+termcolor.colored('', 'red')}·················{termcolor.colored('', timeBg)+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
                 else:
-                    prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+'@dell-inspiron - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', timeBg)+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                    if completedProcess != -200:
+                        if completedProcess == 0:
+                            prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statBg}')+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold'])+termcolor.colored('', statBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                        else:
+                            prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statErrBg}')+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold'])+termcolor.colored('', statErrBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                    else:
+                        prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}\n│\n╰─ {propmtChar} " # type: ignore
             else:
-                if completedProcess != -200:
-                    if completedProcess == 0:
-                        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+'@dell-inspiron - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statBg}')+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold'])+termcolor.colored('', statBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                if timeInPrompt == "t" or timeInPrompt == "T" or timeInPrompt == "true" or timeInPrompt == "True":
+                    if completedProcess != -200:
+                        if completedProcess == 0:
+                            prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', statBg)+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}')+termcolor.colored('', timeBg, f'on_{statBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                        else:
+                            prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', statErrBg)+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}')+termcolor.colored('', timeBg, f'on_{statErrBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
                     else:
-                        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+'@dell-inspiron - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statErrBg}')+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold'])+termcolor.colored('', statErrBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', timeBg)+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
                 else:
-                    prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+'@dell-inspiron - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                    if completedProcess != -200:
+                        if completedProcess == 0:
+                            prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statBg}')+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold'])+termcolor.colored('', statBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                        else:
+                            prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statErrBg}')+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold'])+termcolor.colored('', statErrBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                    else:
+                        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}\n│\n╰─ {propmtChar} " # type: ignore
             if is_interactive():
                 cmd = input(prompt)
                 historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
@@ -494,6 +513,8 @@ promptChar={arg[2]}""")
                         usage_message("graph")
                 case "sudo":
                     completedProcess = subprocess.run(f"sudo {args}", shell=True).returncode
+                case "root":
+                    completedProcess = subprocess.run(f"sudo python3 ~/.config/ytshell/main.py", shell=True).returncode
                 case "exit":
                     completedProcess = 0
                     exit()
@@ -507,5 +528,4 @@ promptChar={arg[2]}""")
             pass
 
 if __name__ == "__main__":
-    setup()
     main()
