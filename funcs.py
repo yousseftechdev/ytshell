@@ -290,7 +290,7 @@ def get_prompt():
     if repoUtd:
         git_cross_color = 'light_green'
     else:
-        git_cross_color = 'light_green'
+        git_cross_color = 'light_red'
 
     if os.getuid() == 0:
         if timeInPrompt.lower() in ["t", "true"]:
