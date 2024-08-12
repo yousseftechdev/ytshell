@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # GLOBALS
 global repoUtd
 import subprocess
