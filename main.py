@@ -9,7 +9,7 @@ import time
 import funcs
 import datetime
 import termcolor
-
+scriptLocation = os.getcwd()
 def main() -> None:
     funcs.setup()
 
@@ -23,7 +23,7 @@ def main() -> None:
     
     while True:
         try:
-            sys.stdout.write(f"\x1b]2;YTShell - {dir}\x07")
+            sys.stdout.write(f"\x1b]2;YTShell - {os.getcwd()}\x07")
             if funcs.is_interactive():
                 cmd = input(funcs.get_prompt())
                 exitCodeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/exitCodeFile.txt", "w")
@@ -292,7 +292,6 @@ def main() -> None:
                         funcs.usage_message("ask")
                     elif "-ai" in args:
                         exitCodeFile.write(str(subprocess.run("xdg-open http://chatgpt.com", shell=True).returncode))
-                        exitCodeFile.close()
                         time.sleep(4)
                         pyautogui.moveTo(861, 1022)
                         pyautogui.typewrite(args.split("-ai")[1], 0.03)
@@ -307,7 +306,6 @@ def main() -> None:
                             args = args.split("-rdt")[1].strip()
                             title, body, subreddit = args.split('---')
                             exitCodeFile.write(str(subprocess.run("xdg-open https://www.reddit.com/submit?type=TEXT", shell=True).returncode))
-                            exitCodeFile.close()
                             time.sleep(4)
 
                             pyautogui.click(658, 429)
@@ -371,13 +369,9 @@ def main() -> None:
                         os.makedirs(args, exist_ok=True)
                         os.chdir(args)
                         exitCodeFile.write(str(subprocess.run("git init", shell=True).returncode))
-                        exitCodeFile.close()
                         exitCodeFile.write(str(subprocess.run("touch .gitignore", shell=True).returncode))
-                        exitCodeFile.close()
                         exitCodeFile.write(str(subprocess.run("touch README.md", shell=True).returncode))
-                        exitCodeFile.close()
                         exitCodeFile.write(str(subprocess.run(f"echo '# {args}' > README.md", shell=True).returncode))
-                        exitCodeFile.close()
                         exitCodeFile.write(str(subprocess.run("echo '*test\ntest*\nTest*\n*Test\n*.log' > .gitignore", shell=True).returncode))
                         exitCodeFile.close()
                 case "neofun":
@@ -561,7 +555,7 @@ get_prompt()Char={arg[2]}""")
                     exitCodeFile.write(str(subprocess.run(f"sudo {args}", shell=True).returncode))
                     exitCodeFile.close()
                 case "root":
-                    exitCodeFile.write(str(subprocess.run(f"sudo python3 ~/.config/ytshell/main.py", shell=True).returncode))
+                    exitCodeFile.write(str(subprocess.run(f"sudo python3 {scriptLocation}/main.py", shell=True).returncode))
                     exitCodeFile.close()
                 case "exit":
                     exitCodeFile.write('0')
