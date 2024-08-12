@@ -44,22 +44,9 @@ The `theme` command allows you to customize the appearance of YTShell, including
   theme -edit black white green yellow blue red cyan magenta
   ```
   **Available colors:**
-    <span style="color:black">black</span>, 
-    <span style="color:red">red</span>, 
-    <span style="color:green">green</span>, 
-    <span style="color:yellow">yellow</span>, 
-    <span style="color:blue">blue</span>, 
-    <span style="color:magenta">magenta</span>, 
-    <span style="color:cyan">cyan</span>, 
-    <span style="color:white">white</span>, 
-    <span style="color:lightgrey">light_grey</span>, 
-    <span style="color:darkgrey">dark_grey</span>, 
-    <span style="color:#ff6666">light_red</span>, 
-    <span style="color:#90ee90">light_green</span>, 
-    <span style="color:#f5e663">light_yellow</span>, 
-    <span style="color:#add8e6">light_blue</span>, 
-    <span style="color:#ff99ff">light_magenta</span>, 
-    <span style="color:#e0ffff">light_cyan</span>.
+  black, red, green, yellow, blue, magenta, cyan, white,
+  light_grey, dark_grey, light_red, light_green, light_yellow, light_blue,
+  light_magenta, light_cyan.
 
   
   This command sets the colors for the prompt, time, and status messages according to the provided values.
