@@ -421,8 +421,12 @@ def main() -> None:
                     exitCodeFile.write('0')
                     exitCodeFile.close()
                 case "vsc":
-                    exitCodeFile.write(str(subprocess.run("code", shell=True).returncode))
-                    exitCodeFile.close()
+                    if not args:
+                        exitCodeFile.write(str(subprocess.run("code", shell=True).returncode))
+                        exitCodeFile.close()
+                    else:
+                        exitCodeFile.write(str(subprocess.run(f"code {args}", shell=True).returncode))
+                        exitCodeFile.close()
                 case "vsci":
                     if not args:
                         exitCodeFile.write(str(subprocess.run("code-insiders", shell=True).returncode))
