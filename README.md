@@ -2,8 +2,6 @@
 
 YTShell is a modern and customizable shell inspired by [zsh](https://www.zsh.org/). Built entirely in Python, YTShell combines the flexibility of Python scripting with powerful features from tools like [zoxide](https://github.com/ajeetdsouza/zoxide). Whether you're a power user or just looking for a simpler shell experience, YTShell offers an easy-to-customize environment to suit your needs.
 
-![YTShell Logo](https://chatgpt.com/api/content/file-xxkgco2OL4SiPuU4QxKUiNvL)
-
 ## Features
 
 - **Inspired by Zsh**: YTShell takes inspiration from the powerful features and customization options of Zsh, offering a familiar experience with the added benefits of Python scripting.
