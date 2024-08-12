@@ -559,6 +559,9 @@ get_prompt()Char={arg[2]}""")
                         exitCodeFile.close()
                         print("Error: Invalid arguments")
                         funcs.usage_message("graph")
+                case "chmod":
+                    exitCodeFile.write(str(subprocess.run(f"chmod {args}", shell=True).returncode))
+                    exitCodeFile.close()
                 case "sudo":
                     exitCodeFile.write(str(subprocess.run(f"sudo {args}", shell=True).returncode))
                     exitCodeFile.close()

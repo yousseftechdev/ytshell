@@ -5,3 +5,4 @@ Test*
 *.log
 commands.txt
 __pycache__
+update.sh
