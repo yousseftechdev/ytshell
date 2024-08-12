@@ -244,7 +244,11 @@ def get_git_info():
             modified = ''
         if deleted == '#0':
             deleted = ''
-        git_info = termcolor.colored(f' {branch} {modified} {created} {deleted}', 'white', 'on_light_red')+termcolor.colored('', 'light_red')
+        if created == '' and deleted == '' and modified == '':
+            color = 'light_green'
+        else:
+            color = 'light_red'
+        git_info = termcolor.colored(f' {branch} {modified} {created} {deleted}', 'white', f'on_{color}')+termcolor.colored('', color) # type: ignore
         return git_info
     except:
         return None
