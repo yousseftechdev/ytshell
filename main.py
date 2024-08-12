@@ -573,8 +573,9 @@ get_prompt()Char={arg[2]}""")
             print("\n")
         except KeyboardInterrupt:
             subprocess.run("clear", shell=True)
+            exitCodeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/exitCodeFile.txt", "w")
             exitCodeFile.write('130')
-            pass
+            exitCodeFile.close()
 
 if __name__ == "__main__":
     main()

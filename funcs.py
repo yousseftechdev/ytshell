@@ -241,14 +241,14 @@ def get_git_info():
 
         # Get the status of files
         status = subprocess.check_output(['git', 'status', '--short'], stderr=subprocess.DEVNULL).decode('utf-8')
-        modified = '!' + str(len([line for line in status.splitlines() if line.startswith(' M ')]))
-        created = '?' + str(len([line for line in status.splitlines() if line.startswith('??')]))
-        deleted = '#' + str(len([line for line in status.splitlines() if line.startswith(' D ')]))
-        if created == '?0':
+        modified = f" !{str(len([line for line in status.splitlines() if line.startswith(' M ')]))} "
+        created = f" ?{str(len([line for line in status.splitlines() if line.startswith('??')]))} "
+        deleted = f" #{str(len([line for line in status.splitlines() if line.startswith(' D ')]))} "
+        if created == ' ?0 ':
             created = ''
-        if modified == '!0':
+        if modified == ' !0 ':
             modified = ''
-        if deleted == '#0':
+        if deleted == ' #0 ':
             deleted = ''
         if created == '' and deleted == '' and modified == '':
             repoUtd = True
@@ -256,7 +256,7 @@ def get_git_info():
         else:
             repoUtd = False
             color = 'light_red'
-        git_info = termcolor.colored(f' {branch} {modified} {created} {deleted}', 'white', f'on_{color}')+termcolor.colored('', color) # type: ignore
+        git_info = termcolor.colored(f' {branch}{modified}{created}{deleted}', 'white', f'on_{color}')+termcolor.colored('', color) # type: ignore
         return git_info
     except:
         return None
