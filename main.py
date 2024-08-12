@@ -424,8 +424,12 @@ def main() -> None:
                     exitCodeFile.write(str(subprocess.run("code", shell=True).returncode))
                     exitCodeFile.close()
                 case "vsci":
-                    exitCodeFile.write(str(subprocess.run("code-insiders", shell=True).returncode))
-                    exitCodeFile.close()
+                    if not args:
+                        exitCodeFile.write(str(subprocess.run("code-insiders", shell=True).returncode))
+                        exitCodeFile.close()
+                    else:
+                        exitCodeFile.write(str(subprocess.run(f"code-insiders {args}", shell=True).returncode))
+                        exitCodeFile.close()
                 case "history":
                     if not args:
                         historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "r")
