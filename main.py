@@ -1,6 +1,6 @@
 # GLOBALS
 global completedProcess
-
+global repoUtd
 import subprocess
 import os
 import sys
