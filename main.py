@@ -570,7 +570,7 @@ stat-err-txt={arg[7]}""")
                         configFile = open(f"{os.path.expanduser('~')}/.config/ytshell/config.txt", "w")
                         configFile.write(f"""time={arg[0]},
 timeFormat={arg[1]},
-get_prompt()Char={arg[2]}""")
+promptChar={arg[2]}""")
                         configFile.close()
                         exitCodeFile.write('0')
                         exitCodeFile.close()
