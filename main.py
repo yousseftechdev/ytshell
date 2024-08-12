@@ -1,3 +1,6 @@
+# GLOBALS
+global completedProcess
+
 import subprocess
 import os
 import sys
@@ -18,73 +21,14 @@ commands[-1] = commands[-1].strip("\n")
 
 def main() -> None:
     all_commands = get_all_commands()
-    completedProcess = -200
 
     while True:
         try:
-            dir = os.getcwd()
-            currentFolder = os.getcwd().split("/")[-1]
-            if os.getuid() != 0:
-                if currentFolder == os.path.expanduser("~").split("/home/")[1]:
-                    currentFolder = ""
-
-            fdir = ' '+dir.replace(os.path.expanduser('~'), '~').strip(currentFolder)
             sys.stdout.write(f"\x1b]2;YTShell - {dir}\x07")
-            configFile = open(f"{os.path.expanduser('~')}/.config/ytshell/config.txt", "r")
-            configContent = configFile.read().split(",\n")
-            timeInPrompt = configContent[0].split("time=")[1]
-            timeFormat = configContent[1].split("timeFormat=")[1]
-            propmtChar = configContent[2].split("promptChar=")[1]
-            dt = datetime.datetime.now()
-            ftime = dt.strftime(timeFormat)
-            themeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/theme.txt", "r")
-            colors = themeFile.read().split(",\n")
-            promptBg = colors[0].split("prompt-bg=")[1]
-            promptTxt = colors[1].split("prompt-txt=")[1]
-            timeBg = colors[2].split("time-bg=")[1]
-            timeTxt = colors[3].split("time-txt=")[1]
-            statBg = colors[4].split("stat-bg=")[1]
-            statTxt = colors[5].split("stat-txt=")[1]
-            statErrBg = colors[6].split("stat-err-bg=")[1]
-            statErrTxt = colors[7].split("stat-err-txt=")[1]
-            if os.getuid() == 0:
-                if timeInPrompt == "t" or timeInPrompt == "T" or timeInPrompt == "true" or timeInPrompt == "True":
-                    if completedProcess != -200:
-                        if completedProcess == 0:
-                            prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold'])+termcolor.colored(' ] ', 'white', 'on_red')+termcolor.colored('', 'red')}·················{termcolor.colored('', statBg)+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}')+termcolor.colored('', timeBg, f'on_{statBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                        else:
-                            prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold'])+termcolor.colored(' ] ', 'white', 'on_red')+termcolor.colored('', 'red')}·················{termcolor.colored('', statErrBg)+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}')+termcolor.colored('', timeBg, f'on_{statErrBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                    else:
-                        prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold'])+termcolor.colored(' ] ', 'white', 'on_red')+termcolor.colored('', 'red')}·················{termcolor.colored('', timeBg)+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                else:
-                    if completedProcess != -200:
-                        if completedProcess == 0:
-                            prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statBg}')+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold'])+termcolor.colored('', statBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                        else:
-                            prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statErrBg}')+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold'])+termcolor.colored('', statErrBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                    else:
-                        prompt = f"╭─{termcolor.colored('', 'red')+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, 'white', 'on_red')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}\n│\n╰─ {propmtChar} " # type: ignore
-            else:
-                if timeInPrompt == "t" or timeInPrompt == "T" or timeInPrompt == "true" or timeInPrompt == "True":
-                    if completedProcess != -200:
-                        if completedProcess == 0:
-                            prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', statBg)+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}')+termcolor.colored('', timeBg, f'on_{statBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                        else:
-                            prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', statErrBg)+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}')+termcolor.colored('', timeBg, f'on_{statErrBg}')+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                    else:
-                        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}·················{termcolor.colored('', timeBg)+termcolor.colored(' '+ftime+' ', timeTxt, f'on_{timeBg}')+termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                else:
-                    if completedProcess != -200:
-                        if completedProcess == 0:
-                            prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statBg}')+termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold'])+termcolor.colored('', statBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                        else:
-                            prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg, f'on_{statErrBg}')+termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold'])+termcolor.colored('', statErrBg)}\n│\n╰─ {propmtChar} " # type: ignore
-                    else:
-                        prompt = f"╭─{termcolor.colored('', promptBg)+termcolor.colored(' '+os.path.expanduser('~').split('/home/')[1]+f'@{os.uname().nodename} - ['+fdir, promptTxt, f'on_{promptBg}')+termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold'])+termcolor.colored(' ] ', promptTxt, f'on_{promptBg}')+termcolor.colored('', promptBg)}\n│\n╰─ {propmtChar} " # type: ignore
             if is_interactive():
-                cmd = input(prompt)
+                cmd = input(get_prompt())
                 historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
-                historyFile.write(f"{cmd}         {ftime}\n\n")
+                historyFile.write(f"{cmd}         {get_ftime()}\n\n")
                 historyFile.close()
             else:
                 print("Running in a non-interactive mode. Exiting.")
@@ -471,8 +415,8 @@ def main() -> None:
                     elif "-edit" in args:
                         arg = args.split("-edit ")[1].split(" ")
                         themeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/theme.txt", "w")
-                        themeFile.write(f"""prompt-bg={arg[0]},
-prompt-txt={arg[1]},
+                        themeFile.write(f"""get_prompt()-bg={arg[0]},
+get_prompt()-txt={arg[1]},
 time-bg={arg[2]},
 time-txt={arg[3]},
 stat-bg={arg[4]},
@@ -495,7 +439,7 @@ stat-err-txt={arg[7]}""")
                         configFile = open(f"{os.path.expanduser('~')}/.config/ytshell/config.txt", "w")
                         configFile.write(f"""time={arg[0]},
 timeFormat={arg[1]},
-promptChar={arg[2]}""")
+get_prompt()Char={arg[2]}""")
                         configFile.close()
                         completedProcess = 0
                     else:

@@ -2,6 +2,9 @@ import os
 import sys
 import turtle
 from math import * # type: ignore
+import subprocess
+import termcolor
+import datetime
 
 # Graph setup
 ww = 1800
@@ -222,3 +225,102 @@ def graph(equ, res):
             y = eval(equ)
             func.goto(x, y)
     wn.exitonclick()
+
+def get_git_info():
+    try:
+        # Get the current branch name
+        branch = subprocess.check_output(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'], stderr=subprocess.DEVNULL
+        ).strip().decode('utf-8')
+
+        # Get the status of files
+        status = subprocess.check_output(['git', 'status', '--short'], stderr=subprocess.DEVNULL).decode('utf-8')
+        modified = '!' + str(len([line for line in status.splitlines() if line.startswith(' M ')]))
+        created = '?' + str(len([line for line in status.splitlines() if line.startswith('??')]))
+        deleted = '#' + str(len([line for line in status.splitlines() if line.startswith(' D ')]))
+        if created == '?0':
+            created = ''
+        if modified == '!0':
+            modified = ''
+        if deleted == '#0':
+            deleted = ''
+        git_info = termcolor.colored(f' {branch} {modified} {created} {deleted}', 'white', 'on_light_red')+termcolor.colored('', 'light_red')
+        return git_info
+    except:
+        return None
+
+def get_prompt():
+    global completedProcess
+    completedProcess = -200
+    dir = os.getcwd()
+    currentFolder = os.getcwd().split("/")[-1]
+    if os.getuid() != 0:
+        if currentFolder == os.path.expanduser("~").split("/home/")[1]:
+            currentFolder = ""
+
+    fdir = ' ' + dir.replace(os.path.expanduser('~'), '~').strip(currentFolder)
+    configFile = open(f"{os.path.expanduser('~')}/.config/ytshell/config.txt", "r")
+    configContent = configFile.read().split(",\n")
+    timeInPrompt = configContent[0].split("time=")[1]
+    timeFormat = configContent[1].split("timeFormat=")[1]
+    propmtChar = configContent[2].split("promptChar=")[1]
+    dt = datetime.datetime.now()
+    ftime = dt.strftime(timeFormat)
+    themeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/theme.txt", "r")
+    colors = themeFile.read().split(",\n")
+    promptBg = colors[0].split("prompt-bg=")[1]
+    promptTxt = colors[1].split("prompt-txt=")[1]
+    timeBg = colors[2].split("time-bg=")[1]
+    timeTxt = colors[3].split("time-txt=")[1]
+    statBg = colors[4].split("stat-bg=")[1]
+    statTxt = colors[5].split("stat-txt=")[1]
+    statErrBg = colors[6].split("stat-err-bg=")[1]
+    statErrTxt = colors[7].split("stat-err-txt=")[1]
+
+    # Get Git info if in a Git repository
+    git_info = get_git_info()
+    git_prompt = f"{git_info}" if git_info else ""
+
+    if os.getuid() == 0:
+        if timeInPrompt.lower() in ["t", "true"]:
+            if completedProcess != -200:
+                if completedProcess == 0:
+                    prompt = f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} 💀 [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold']) + termcolor.colored(' ] ', 'white', 'on_red') + termcolor.colored('', 'red', 'on_light_red')}{git_prompt}·················{termcolor.colored('', statBg) + termcolor.colored(' ✔ ', statTxt, f'on_{statBg}') + termcolor.colored('', timeBg, f'on_{statBg}') + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} 💀 [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold']) + termcolor.colored(' ] ', 'white', 'on_red') + termcolor.colored('', 'red')}·················{termcolor.colored('', statBg) + termcolor.colored(' ✔ ', statTxt, f'on_{statBg}') + termcolor.colored('', timeBg, f'on_{statBg}') + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                else:
+                    prompt = f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} 💀 [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold']) + termcolor.colored(' ] ', 'white', 'on_red') + termcolor.colored('', 'red', 'on_light_red')}{git_prompt}·················{termcolor.colored('', statErrBg) + termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}') + termcolor.colored('', timeBg, f'on_{statErrBg}') + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} 💀 [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold']) + termcolor.colored(' ] ', 'white', 'on_red') + termcolor.colored('', 'red')}·················{termcolor.colored('', statErrBg) + termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}') + termcolor.colored('', timeBg, f'on_{statErrBg}') + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+            else:
+                prompt = f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} 💀 [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold']) + termcolor.colored(' ] ', 'white', 'on_red') + termcolor.colored('', 'red', 'on_light_red')}{git_prompt}·················{termcolor.colored('', timeBg) + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} 💀 [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder.replace('root', ''), 'white', 'on_red', attrs=['bold']) + termcolor.colored(' ] ', 'white', 'on_red') + termcolor.colored('', 'red')}·················{termcolor.colored('', timeBg) + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+        else:
+            if completedProcess != -200:
+                if completedProcess == 0:
+                    prompt = f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/home/')[1] + f'@{os.uname().nodename} - [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{statBg}') + termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold']) + termcolor.colored('', statBg, 'on_light_red')}{git_prompt}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/home/')[1] + f'@{os.uname().nodename} - [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{statBg}') + termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold']) + termcolor.colored('', statBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                else:
+                    prompt = f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/home/')[1] + f'@{os.uname().nodename} - [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{statErrBg}') + termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold']) + termcolor.colored('', statErrBg, 'on_light_red')}{git_prompt}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/home/')[1] + f'@{os.uname().nodename} - [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{statErrBg}') + termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold']) + termcolor.colored('', statErrBg)}\n│\n╰─ {propmtChar} " # type: ignore
+            else:
+                prompt = f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/home/')[1] + f'@{os.uname().nodename} - [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, 'on_light_red')}{git_prompt}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', 'red') + termcolor.colored(' ' + os.path.expanduser('~').split('/home/')[1] + f'@{os.uname().nodename} - [' + fdir, 'white', 'on_red') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}\n│\n╰─ {propmtChar} " # type: ignore
+
+    else:
+        if timeInPrompt.lower() in ["t", "true"]:
+            if completedProcess != -200:
+                if completedProcess == 0:
+                    prompt = f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, 'on_light_red')}{git_prompt}·················{termcolor.colored('', statBg) + termcolor.colored(' ✔ ', statTxt, f'on_{statBg}') + termcolor.colored('', timeBg, f'on_{statBg}') + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}·················{termcolor.colored('', statBg) + termcolor.colored(' ✔ ', statTxt, f'on_{statBg}') + termcolor.colored('', timeBg, f'on_{statBg}') + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+                else:
+                    prompt = f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, 'on_light_red')}{git_prompt}·················{termcolor.colored('', statErrBg) + termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}') + termcolor.colored('', timeBg, f'on_{statErrBg}') + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}·················{termcolor.colored('', statErrBg) + termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}') + termcolor.colored('', timeBg, f'on_{statErrBg}') + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+            else:
+                prompt = f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, 'on_light_red')}{git_prompt}·················{termcolor.colored('', timeBg) + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}·················{termcolor.colored('', timeBg) + termcolor.colored(' ' + ftime + ' ', timeTxt, f'on_{timeBg}') + termcolor.colored('', timeBg)}\n│\n╰─ {propmtChar} " # type: ignore
+        else:
+            if completedProcess != -200:
+                if completedProcess == 0:
+                    prompt = f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{statBg}') + termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold']) + termcolor.colored('', statBg, 'on_light_red')}{git_prompt}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{statBg}') + termcolor.colored(' ✔ ', statTxt, f'on_{statBg}', attrs=['bold']) + termcolor.colored('', statBg)}\n│\n╰─ {propmtChar} "# type: ignore
+                else:
+                    prompt = f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{statErrBg}') + termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold']) + termcolor.colored('', statErrBg, 'on_light_red')}{git_prompt}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{statErrBg}') + termcolor.colored(f' {completedProcess} ✘ ', statErrTxt, f'on_{statErrBg}', attrs=['bold']) + termcolor.colored('', statErrBg)}\n│\n╰─ {propmtChar} " # type: ignore
+            else:
+                prompt = f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}{git_prompt}\n│\n╰─ {propmtChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.path.expanduser('~').split('/')[1] + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}\n│\n╰─ {propmtChar} "# type: ignore
+    return prompt
+def get_ftime():
+    configFile = open(f"{os.path.expanduser('~')}/.config/ytshell/config.txt", "r")
+    configContent = configFile.read().split(",\n")
+    timeFormat = configContent[1].split("timeFormat=")[1]
+    dt = datetime.datetime.now()
+    ftime = dt.strftime(timeFormat)
+    return ftime
