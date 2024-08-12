@@ -10,7 +10,7 @@ import funcs
 import datetime
 import termcolor
 scriptLocation = os.getcwd()
-def main() -> None:
+def main() -> None: # type: ignore
     funcs.setup()
 
     sys.stdout.write("\x1b]2;YTShell\x07")
@@ -28,7 +28,7 @@ def main() -> None:
                 cmd = input(funcs.get_prompt())
                 exitCodeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/exitCodeFile.txt", "w")
                 historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
-                historyFile.write(f"{cmd}         {funcs.get_ftime()}\n\n")
+                historyFile.write(f"{cmd}\n")
                 historyFile.close()
             else:
                 print("Running in a non-interactive mode. Exiting.")
@@ -80,28 +80,62 @@ def main() -> None:
                             exitCodeFile.close()
                             print(f"Error: Invalid arguments")
                             funcs.usage_message("dev")
+                # case "cd":
+                #     if not args:
+                #         os.chdir(os.path.expanduser("~"))
+                #         exitCodeFile.write('0')
+                #         exitCodeFile.close()
+                #     else:
+                #         try:
+                #             os.chdir(args)
+                #             exitCodeFile.write('0')
+                #             exitCodeFile.close()
+                #         except FileNotFoundError:
+                #             exitCodeFile.write('127')
+                #             exitCodeFile.close()
+                #             print(f"Error:- No such file or directory: {args}")
+                #         except NotADirectoryError:
+                #             exitCodeFile.write('127')
+                #             exitCodeFile.close()
+                #             print(f"Error:- Not a directory: {args}")
+                #         except PermissionError:
+                #             exitCodeFile.write('126')
+                #             exitCodeFile.close()
+                #             print(f"Error:- Permission denied: {args}")
                 case "cd":
                     if not args:
                         os.chdir(os.path.expanduser("~"))
                         exitCodeFile.write('0')
-                        exitCodeFile.close()
                     else:
                         try:
                             os.chdir(args)
+                            # Handling history file
+                            history_file_path = f"{os.path.expanduser('~')}/.config/ytshell/dirHistory.txt"
+                            with open(history_file_path, "a+") as dirHistoryFile:
+                                dirHistoryFile.seek(0)  # Move to the beginning of the file
+                                paths = dirHistoryFile.read().split(",\n")
+                                if args not in paths:
+                                    if os.path.getsize(history_file_path) == 0:
+                                        dirHistoryFile.write(f"{os.getcwd()}")
+                                    else:
+                                        dirHistoryFile.write(f",\n{os.getcwd()}")
                             exitCodeFile.write('0')
-                            exitCodeFile.close()
                         except FileNotFoundError:
-                            exitCodeFile.write('127')
-                            exitCodeFile.close()
-                            print(f"Error:- No such file or directory: {args}")
+                            auto_dir = funcs.dirAutoComplete(args)
+                            if auto_dir:
+                                os.chdir(auto_dir)
+                                exitCodeFile.write('0')
+                            else:
+                                print(funcs.dirAutoComplete(args))
+                                exitCodeFile.write('127')
+                                print(f"Error: No such file or directory: {args}")
                         except NotADirectoryError:
                             exitCodeFile.write('127')
-                            exitCodeFile.close()
-                            print(f"Error:- Not a directory: {args}")
+                            print(f"Error: Not a directory: {args}")
                         except PermissionError:
                             exitCodeFile.write('126')
-                            exitCodeFile.close()
-                            print(f"Error:- Permission denied: {args}")
+                            print(f"Error: Permission denied: {args}")
+                    exitCodeFile.close()
                 case "mkcd":
                     if not args:
                         exitCodeFile.write('20')
@@ -559,6 +593,16 @@ get_prompt()Char={arg[2]}""")
                         exitCodeFile.close()
                         print("Error: Invalid arguments")
                         funcs.usage_message("graph")
+                case "python":
+                    if not args:
+                        exitCodeFile.write(str(subprocess.run(f"python", shell=True).returncode))
+                    else:
+                        exitCodeFile.write(str(subprocess.run(f"python {args}", shell=True).returncode))
+                case "python3":
+                    if not args:
+                        exitCodeFile.write(str(subprocess.run(f"python3", shell=True).returncode))
+                    else:
+                        exitCodeFile.write(str(subprocess.run(f"python3 {args}", shell=True).returncode))
                 case "chmod":
                     exitCodeFile.write(str(subprocess.run(f"chmod {args}", shell=True).returncode))
                     exitCodeFile.close()
