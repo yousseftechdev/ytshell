@@ -43,6 +43,24 @@ The `theme` command allows you to customize the appearance of YTShell, including
   ```bash
   theme -edit black white green yellow blue red cyan magenta
   ```
+  **Available colors:**
+    <span style="color:black">black</span>, 
+    <span style="color:red">red</span>, 
+    <span style="color:green">green</span>, 
+    <span style="color:yellow">yellow</span>, 
+    <span style="color:blue">blue</span>, 
+    <span style="color:magenta">magenta</span>, 
+    <span style="color:cyan">cyan</span>, 
+    <span style="color:white">white</span>, 
+    <span style="color:lightgrey">light_grey</span>, 
+    <span style="color:darkgrey">dark_grey</span>, 
+    <span style="color:#ff6666">light_red</span>, 
+    <span style="color:#90ee90">light_green</span>, 
+    <span style="color:#f5e663">light_yellow</span>, 
+    <span style="color:#add8e6">light_blue</span>, 
+    <span style="color:#ff99ff">light_magenta</span>, 
+    <span style="color:#e0ffff">light_cyan</span>.
+
   
   This command sets the colors for the prompt, time, and status messages according to the provided values.
 
@@ -63,8 +81,8 @@ The `config` command allows you to configure various operational settings for YT
   To customize the configuration, use the `-edit` flag followed by the settings you want to modify. The settings should be provided in the following order:
   
   1. `time`: Display time in the prompt (`true` or `false`)
-  2. `timeFormat`: Format of the time display (e.g., `24h`, `12h`)
-  3. `get_prompt()Char`: The character used as the prompt symbol
+  2. `timeFormat`: Format of the time display (e.g. `%H:%M:%S-%d/%m/%y`)
+  3. `promptChar`: The character used as the prompt symbol
   
   Example:
   
