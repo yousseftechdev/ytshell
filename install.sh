@@ -7,13 +7,13 @@ if ! command -v python3 &>/dev/null; then
 fi
 
 # Install required Python modules
-pip3 install pyautogui termcolor numpy
+pip3 install pyautogui termcolor numpy cv2
 
 # Create the ytshell config directory
 mkdir -p ~/.config/ytshell
 
 # Copy the Python files to the ytshell directory
-cp main.py funcs.py ~/.config/ytshell/
+cp main.py funcs.py BadApple.mp4 ~/.config/ytshell/
 
 # Copy the ytshell script to the /bin directory
 sudo cp ytshell /bin/
