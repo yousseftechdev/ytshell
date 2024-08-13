@@ -170,8 +170,13 @@ def main() -> None: # type: ignore
                             print(f"Error: Invalid arguments")
                             funcs.usage_message("sp")
                 case "cleanup":
-                    exitCodeFile.write(str(subprocess.run("sudo apt-get clean && sudo apt-get autoremove -y", shell=True).returncode))
-                    exitCodeFile.close()
+                    if not args:
+                        exitCodeFile.write(str(subprocess.run("sudo apt-get clean && sudo apt-get autoremove -y", shell=True).returncode))
+                        exitCodeFile.close()
+                    else:
+                        funcs.usage_message("cleanup")
+                        exitCodeFile.write("0")
+                        exitCodeFile.close()
                 case "url":
                     exitCodeFile.write(str(subprocess.run(f"xdg-open {args}", shell=True).returncode))
                     exitCodeFile.close()
