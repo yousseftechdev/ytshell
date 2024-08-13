@@ -603,6 +603,23 @@ promptChar={arg[2]}""")
                         exitCodeFile.write(str(subprocess.run(f"python3", shell=True).returncode))
                     else:
                         exitCodeFile.write(str(subprocess.run(f"python3 {args}", shell=True).returncode))
+                case "tuiclock":
+                    while True:
+                        print(f'''╭────────────────────────╮
+│    {funcs.get_ftime()}   │
+╰────────────────────────╯
+
+Press Ctrl+C to exit''')
+
+                        time.sleep(1)
+                        print("\033[2J\033[H", end="", flush=True)
+                    exitCodeFile.write("0")
+                    exitCodeFile.close()
+                case "addcmd":
+                    with open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "a") as commandsFile:
+                        commandsFile.write(f",\n{args}")
+                    exitCodeFile.write("0")
+                    exitCodeFile.close()
                 case "chmod":
                     exitCodeFile.write(str(subprocess.run(f"chmod {args}", shell=True).returncode))
                     exitCodeFile.close()
