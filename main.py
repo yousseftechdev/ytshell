@@ -613,8 +613,6 @@ Press Ctrl+C to exit''')
 
                         time.sleep(1)
                         print("\033[2J\033[H", end="", flush=True)
-                    exitCodeFile.write("0")
-                    exitCodeFile.close()
                 case "addcmd":
                     with open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "a") as commandsFile:
                         commandsFile.write(f",\n{args}")
