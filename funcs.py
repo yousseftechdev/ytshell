@@ -273,6 +273,10 @@ light_magenta, light_cyan.""")
         print("Usage: addcmd (CUSTOM COMMAND)")
         print("This command is used to remove custom commands from the shell, it removes the command name from the commands.txt file located at '~/.config/ytshell/commands.txt'.")
         print("You can edit the commands file manually.")
+    elif command == "ascii":
+        print("Usage: ascii (FILE) (WIDTH) (SCALE) (HIGH DETAIL) (BRAIL CHARS)")
+        print("Turns images into their ascii representation and prints them.")
+        print("Example usage: ascii image.png 80 0.43 False True")
         
 def is_interactive():
     try:
