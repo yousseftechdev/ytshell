@@ -9,6 +9,12 @@ YTShell is a modern and customizable shell inspired by [zsh](https://www.zsh.org
 - **Auto complete cd commands**: YTShell eases directory navigation by remembering the directories you've visited, so you can use the cd command and only type 1 word of the path you want to visit and it will take you there.
 - **Python-Based**: YTShell is made entirely in Python, allowing for easy extension and modification.
 
+### **Planned features**:
+- Returning to previous commands using the up arrow key
+- Going back while typing prompt using the left arror key
+- Adding a "clear" shortcut (Ctrl+L)
+- Adding more commands, by listening to your suggestions 🤗
+
 ## Customizing YTShell
 
 YTShell is designed to be highly customizable, allowing you to personalize the look and feel of your shell environment. This can be done through the `theme` and `config` commands.
