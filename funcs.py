@@ -190,6 +190,13 @@ light_magenta, light_cyan.""")
         print("Graphs an equation using the turtle library, the exponent operator is '**' not '^'.")
         print("Functions like: sin(), cos(), tan(), log(), and factorial() are available.")
         print("ONLY USE THE X VARIABLE IN YOUR EQUATION")
+    elif command == "addcmd":
+        print("Usage: addcmd (CUSTOM COMMAND)")
+        print("This command is used to add custom commands to the shell, it appends the command name to the commands.txt file located at '~/.config/ytshell/commands.txt'.")
+        print("You can edit the commands file manually.")
+        print("Keep in mind that the added command won't do anything if not programmed correctly in the main.py file located at '~/.config/ytshell/main.py'.")
+        print("If the command is not programmed it will return a 126 error.")
+        
 def is_interactive():
     try:
         return os.isatty(sys.stdin.fileno())

@@ -599,14 +599,14 @@ promptChar={arg[2]}""")
                     else:
                         exitCodeFile.write(str(subprocess.run(f"python {args}", shell=True).returncode))
                 case "python3":
-                    if not args:
-                        exitCodeFile.write(str(subprocess.run(f"python3", shell=True).returncode))
-                    else:
                         exitCodeFile.write(str(subprocess.run(f"python3 {args}", shell=True).returncode))
                 case "tuiclock":
                     while True:
-                        print(f'''╭────────────────────────╮
+                        print(f'''
+╭────────────────────────╮
+│                        │
 │    {funcs.get_ftime()}   │
+│                        │
 ╰────────────────────────╯
 
 Press Ctrl+C to exit''')
@@ -614,10 +614,16 @@ Press Ctrl+C to exit''')
                         time.sleep(1)
                         print("\033[2J\033[H", end="", flush=True)
                 case "addcmd":
-                    with open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "a") as commandsFile:
-                        commandsFile.write(f",\n{args}")
-                    exitCodeFile.write("0")
-                    exitCodeFile.close()
+                    if not args:
+                        exitCodeFile.write('20')
+                        exitCodeFile.close()
+                        print(f"Error: Invalid arguments")
+                        funcs.usage_message("addcmd")
+                    else:
+                        with open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "a") as commandsFile:
+                            commandsFile.write(f",\n{args}")
+                        exitCodeFile.write("0")
+                        exitCodeFile.close()
                 case "chmod":
                     exitCodeFile.write(str(subprocess.run(f"chmod {args}", shell=True).returncode))
                     exitCodeFile.close()
