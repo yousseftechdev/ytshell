@@ -624,6 +624,16 @@ Press Ctrl+C to exit''')
                             commandsFile.write(f",\n{args}")
                         exitCodeFile.write("0")
                         exitCodeFile.close()
+                case "rmcmd":
+                    if not args:
+                        exitCodeFile.write('20')
+                        exitCodeFile.close()
+                        print(f"Error: Invalid arguments")
+                        funcs.usage_message("rmcmd")
+                    else:
+                        funcs.remove_item_from_file(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", args)
+                        exitCodeFile.write("0")
+                        exitCodeFile.close()
                 case "chmod":
                     exitCodeFile.write(str(subprocess.run(f"chmod {args}", shell=True).returncode))
                     exitCodeFile.close()

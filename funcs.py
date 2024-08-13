@@ -196,6 +196,10 @@ light_magenta, light_cyan.""")
         print("You can edit the commands file manually.")
         print("Keep in mind that the added command won't do anything if not programmed correctly in the main.py file located at '~/.config/ytshell/main.py'.")
         print("If the command is not programmed it will return a 126 error.")
+    elif command == "rmcmd":
+        print("Usage: addcmd (CUSTOM COMMAND)")
+        print("This command is used to remove custom commands from the shell, it removes the command name from the commands.txt file located at '~/.config/ytshell/commands.txt'.")
+        print("You can edit the commands file manually.")
         
 def is_interactive():
     try:
@@ -363,3 +367,29 @@ def dirAutoComplete(dir):
                 print(path)
                 return path
     return None
+
+def remove_item_from_file(file_path, item_to_remove):
+    try:
+        # Read the file contents into a list
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+        
+        # Strip newline characters and remove the item if it exists
+        lines = [line.strip() for line in lines]
+        for l in lines:
+            if item_to_remove in l:
+                lines.remove(l)
+        
+        # Write the updated list back to the file
+        with open(file_path, 'w') as file:
+            for line in lines:
+                if line is not lines[-1]:
+                    file.write(line + '\n')
+                else:
+                    print(lines[-1])
+                    file.write(line.strip(","))
+        print(f"Item '{item_to_remove}' removed successfully.")
+    except FileNotFoundError:
+        print(f"File '{file_path}' not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
