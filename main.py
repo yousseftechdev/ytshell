@@ -27,9 +27,10 @@ def main() -> None: # type: ignore
             if funcs.is_interactive():
                 cmd = input(funcs.get_prompt())
                 exitCodeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/exitCodeFile.txt", "w")
-                historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
-                historyFile.write(f"{cmd}\n")
-                historyFile.close()
+                if cmd:
+                    historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
+                    historyFile.write(f"{cmd}\n")
+                    historyFile.close()
             else:
                 print("Running in a non-interactive mode. Exiting.")
                 break
@@ -49,8 +50,12 @@ def main() -> None: # type: ignore
                     if cmd == "ls":
                         exitCodeFile.write(str(subprocess.run(f"ls --color=auto {args}", shell=True).returncode))
                         exitCodeFile.close()
+                    elif cmd == "-":
+                        with open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "r") as historyFile:
+                            exitCodeFile.write(str(subprocess.run(historyFile.read().split("\n")[-1], shell=True).returncode))
+                            exitCodeFile.close()
                     else:
-                        exitCodeFile.write(str(subprocess.run(cmd, shell=True).returncode))
+                        exitCodeFile.write(str(subprocess.run(f"{cmdSplit} {args}", shell=True).returncode))
                         exitCodeFile.close()
                 case "help":
                     print(
@@ -80,28 +85,6 @@ def main() -> None: # type: ignore
                             exitCodeFile.close()
                             print(f"Error: Invalid arguments")
                             funcs.usage_message("dev")
-                # case "cd":
-                #     if not args:
-                #         os.chdir(os.path.expanduser("~"))
-                #         exitCodeFile.write('0')
-                #         exitCodeFile.close()
-                #     else:
-                #         try:
-                #             os.chdir(args)
-                #             exitCodeFile.write('0')
-                #             exitCodeFile.close()
-                #         except FileNotFoundError:
-                #             exitCodeFile.write('127')
-                #             exitCodeFile.close()
-                #             print(f"Error:- No such file or directory: {args}")
-                #         except NotADirectoryError:
-                #             exitCodeFile.write('127')
-                #             exitCodeFile.close()
-                #             print(f"Error:- Not a directory: {args}")
-                #         except PermissionError:
-                #             exitCodeFile.write('126')
-                #             exitCodeFile.close()
-                #             print(f"Error:- Permission denied: {args}")
                 case "cd":
                     if not args:
                         os.chdir(os.path.expanduser("~"))
@@ -204,15 +187,6 @@ def main() -> None: # type: ignore
                 case "zrc":
                     exitCodeFile.write(str(subprocess.run("vim ~/.zshrc", shell=True).returncode))
                     exitCodeFile.close()
-                case "touch":
-                    if not args:
-                        exitCodeFile.write('20')
-                        exitCodeFile.close()
-                        print(f"Error: Invalid arguments")
-                        funcs.usage_message("touch")
-                    else:
-                        exitCodeFile.write(str(subprocess.run(f"touch {args}", shell=True).returncode))
-                        exitCodeFile.close()
                 case "rm":
                     if not args:
                         exitCodeFile.write('20')
@@ -222,69 +196,6 @@ def main() -> None: # type: ignore
                     else:
                         exitCodeFile.write(str(subprocess.run(f"rm -rf {args}", shell=True).returncode))
                         exitCodeFile.close()
-                case "mv":
-                    if not args:
-                        exitCodeFile.write('20')
-                        exitCodeFile.close()
-                        print(f"Error: Invalid arguments")
-                        funcs.usage_message("mv")
-                    else:
-                        exitCodeFile.write(str(subprocess.run(f"mv {args}", shell=True).returncode))
-                        exitCodeFile.close()
-                case "cp":
-                    if not args:
-                        exitCodeFile.write('20')
-                        exitCodeFile.close()
-                        print(f"Error: Invalid arguments")
-                        funcs.usage_message("cp")
-                    else:
-                        exitCodeFile.write(str(subprocess.run(f"cp -r {args}", shell=True).returncode))
-                        exitCodeFile.close()
-                case "grep":
-                    if not args:
-                        exitCodeFile.write('20')
-                        exitCodeFile.close()
-                        print(f"Error: Invalid arguments")
-                        funcs.usage_message("grep")
-                    else:
-                        exitCodeFile.write(str(subprocess.run(f"grep {args}", shell=True).returncode))
-                        exitCodeFile.close()
-                case "find":
-                    if not args:
-                        exitCodeFile.write('20')
-                        exitCodeFile.close()
-                        print(f"Error: Invalid arguments")
-                        funcs.usage_message("find")
-                    else:
-                        exitCodeFile.write(str(subprocess.run(f"find {args}", shell=True).returncode))
-                        exitCodeFile.close()
-                case "cat":
-                    if not args:
-                        exitCodeFile.write('20')
-                        exitCodeFile.close()
-                        print(f"Error: Invalid arguments")
-                        funcs.usage_message("cat")
-                    else:
-                        exitCodeFile.write(str(subprocess.run(f"cat {args}", shell=True).returncode))
-                        exitCodeFile.close()
-                case "echo":
-                    if not args:
-                        exitCodeFile.write('20')
-                        exitCodeFile.close()
-                        print(f"Error: Invalid arguments")
-                        funcs.usage_message("echo")
-                    else:
-                        exitCodeFile.write(str(subprocess.run(f"echo {args}", shell=True).returncode))
-                        exitCodeFile.close()
-                case "date":
-                    exitCodeFile.write(str(subprocess.run("date", shell=True).returncode))
-                    exitCodeFile.close()
-                case "tree":
-                    exitCodeFile.write(str(subprocess.run(f"tree {args}", shell=True).returncode))
-                    exitCodeFile.close()
-                case "pwd":
-                    exitCodeFile.write(str(subprocess.run("pwd", shell=True).returncode))
-                    exitCodeFile.close()
                 case "gc":
                     if not args:
                         exitCodeFile.write('20')
@@ -409,22 +320,7 @@ def main() -> None: # type: ignore
                         exitCodeFile.write(str(subprocess.run("echo '*test\ntest*\nTest*\n*Test\n*.log' > .gitignore", shell=True).returncode))
                         exitCodeFile.close()
                 case "neofun":
-                    print(termcolor.colored("""
-    ⡆⣐⢕⢕⢕⢕⢕⢕⢕⢕⠅⢗⢕⢕⢕⢕⢕⢕⢕⠕⠕⢕⢕⢕⢕⢕⢕⢕⢕⢕
-    ⢐⢕⢕⢕⢕⢕⣕⢕⢕⠕⠁⢕⢕⢕⢕⢕⢕⢕⢕⠅⡄⢕⢕⢕⢕⢕⢕⢕⢕⢕
-    ⢕⢕⢕⢕⢕⠅⢗⢕⠕⣠⠄⣗⢕⢕⠕⢕⢕⢕⠕⢠⣿⠐⢕⢕⢕⠑⢕⢕⠵⢕
-    ⢕⢕⢕⢕⠁⢜⠕⢁⣴⣿⡇⢓⢕⢵⢐⢕⢕⠕⢁⣾⢿⣧⠑⢕⢕⠄⢑⢕⠅⢕
-    ⢕⢕⠵⢁⠔⢁⣤⣤⣶⣶⣶⡐⣕⢽⠐⢕⠕⣡⣾⣶⣶⣶⣤⡁⢓⢕⠄⢑⢅⢑
-    ⠍⣧⠄⣶⣾⣿⣿⣿⣿⣿⣿⣷⣔⢕⢄⢡⣾⣿⣿⣿⣿⣿⣿⣿⣦⡑⢕⢤⠱⢐
-    ⢠⢕⠅⣾⣿⠋⢿⣿⣿⣿⠉⣿⣿⣷⣦⣶⣽⣿⣿⠈⣿⣿⣿⣿⠏⢹⣷⣷⡅⢐
-    ⣔⢕⢥⢻⣿⡀⠈⠛⠛⠁⢠⣿⣿⣿⣿⣿⣿⣿⣿⡀⠈⠛⠛⠁⠄⣼⣿⣿⡇⢔
-    ⢕⢕⢽⢸⢟⢟⢖⢖⢤⣶⡟⢻⣿⡿⠻⣿⣿⡟⢀⣿⣦⢤⢤⢔⢞⢿⢿⣿⠁⢕
-    ⢕⢕⠅⣐⢕⢕⢕⢕⢕⣿⣿⡄⠛⢀⣦⠈⠛⢁⣼⣿⢗⢕⢕⢕⢕⢕⢕⡏⣘⢕
-    ⢕⢕⠅⢓⣕⣕⣕⣕⣵⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣷⣕⢕⢕⢕⢕⡵⢀⢕⢕
-    ⢑⢕⠃⡈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢃⢕⢕⢕
-    ⣆⢕⠄⢱⣄⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⢁⢕⢕⠕⢁
-    ⣿⣦⡀⣿⣿⣷⣶⣬⣍⣛⣛⣛⡛⠿⠿⠿⠛⠛⢛⣛⣉⣭⣤⣂⢜⠕⢑⣡⣴⣿
-    """, attrs=["bold"]))
+                    funcs.print_neofun()
                     exitCodeFile.write('0')
                     exitCodeFile.close()
                 case "fuckyou":
@@ -579,9 +475,6 @@ promptChar={arg[2]}""")
                         exitCodeFile.close()
                         print(f"Error: Invalid arguments")
                         funcs.usage_message("config")
-                case "git":
-                    exitCodeFile.write(str(subprocess.run(f"git {args}", shell=True).returncode))
-                    exitCodeFile.close()
                 case "graph":
                     try:
                         print("Click on the graph window to exit")
@@ -593,13 +486,6 @@ promptChar={arg[2]}""")
                         exitCodeFile.close()
                         print("Error: Invalid arguments")
                         funcs.usage_message("graph")
-                case "python":
-                    if not args:
-                        exitCodeFile.write(str(subprocess.run(f"python", shell=True).returncode))
-                    else:
-                        exitCodeFile.write(str(subprocess.run(f"python {args}", shell=True).returncode))
-                case "python3":
-                        exitCodeFile.write(str(subprocess.run(f"python3 {args}", shell=True).returncode))
                 case "tuiclock":
                     while True:
                         print(f'''
@@ -613,6 +499,41 @@ Press Ctrl+C to exit''')
 
                         time.sleep(1)
                         print("\033[2J\033[H", end="", flush=True)
+                case "ascii":
+                    if not args:
+                        exitCodeFile.write('20')
+                        exitCodeFile.close()
+                        print("Error: Invalid arguments")
+                        funcs.usage_message("ascii")
+                    elif len(args.split( )) == 1:
+                        try:
+                            file = args
+                            funcs.ascii_art_command([file, "80", "0.43", "False", "True"])
+                            exitCodeFile.write('0')
+                            exitCodeFile.close()
+                        except:
+                            exitCodeFile.write('127')
+                            exitCodeFile.close()
+                            print(f"Error: No such file or directory: {args}")
+                    else:
+                        try:
+                            file = args.split(" ")[0]
+                            cols = args.split(" ")[1]
+                            scale = args.split(" ")[2]
+                            moreLevels = args.split(" ")[3]
+                            useBrail = args.split(" ")[4]
+                            funcs.ascii_art_command([file, cols, scale, moreLevels, useBrail])
+                            exitCodeFile.write('0')
+                            exitCodeFile.close()
+                        except FileNotFoundError:
+                            exitCodeFile.write('127')
+                            exitCodeFile.close()
+                            print(f"Error: No such file or directory: {args.split(' ')[0]}")
+                        except:
+                            exitCodeFile.write('20')
+                            exitCodeFile.close()
+                            print("Error: Invalid arguments")
+                            funcs.usage_message("ascii")
                 case "addcmd":
                     if not args:
                         exitCodeFile.write('20')
@@ -622,7 +543,7 @@ Press Ctrl+C to exit''')
                     else:
                         with open(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", "a") as commandsFile:
                             commandsFile.write(f",\n{args}")
-                        exitCodeFile.write("0")
+                        exitCodeFile.write('0')
                         exitCodeFile.close()
                 case "rmcmd":
                     if not args:
@@ -632,14 +553,8 @@ Press Ctrl+C to exit''')
                         funcs.usage_message("rmcmd")
                     else:
                         funcs.remove_item_from_file(f"{os.path.expanduser('~')}/.config/ytshell/commands.txt", args)
-                        exitCodeFile.write("0")
+                        exitCodeFile.write('0')
                         exitCodeFile.close()
-                case "chmod":
-                    exitCodeFile.write(str(subprocess.run(f"chmod {args}", shell=True).returncode))
-                    exitCodeFile.close()
-                case "sudo":
-                    exitCodeFile.write(str(subprocess.run(f"sudo {args}", shell=True).returncode))
-                    exitCodeFile.close()
                 case "root":
                     exitCodeFile.write(str(subprocess.run(f"sudo python3 {scriptLocation}/main.py", shell=True).returncode))
                     exitCodeFile.close()

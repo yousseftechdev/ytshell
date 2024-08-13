@@ -1,3 +1,5 @@
+import numpy as np
+from PIL import Image
 import os
 import sys
 import turtle
@@ -5,7 +7,21 @@ from math import * # type: ignore
 import subprocess
 import termcolor
 import datetime
-import main
+import random
+import platform
+import psutil
+import socket
+import time
+
+# ASCII grayscale characters
+gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # type: ignore
+gscale2 = '@%#*+=-:. '
+
+# Braille grayscale characters
+BRAILLE_SCALE = [
+    '⠀', '⠁', '⠃', '⠇', '⠧', '⠷', '⠿', '⡿',
+    '⣿', '⡟', '⡏', '⡇', '⡆', '⡄', '⡀', '⠂',
+]
 
 # Graph setup
 ww = 1800
@@ -42,16 +58,7 @@ lsc,
 brc,
 zrc,
 exit,
-touch,
 rm,
-mv,
-cp,
-grep,
-find,
-cat,
-echo,
-date,
-pwd,
 ai,
 ask,
 vsc,
@@ -60,14 +67,13 @@ history,
 ytpm,
 theme,
 test,
-tree,
 config,
 graph,
-git,
-chmod,
-cdz,
-sudo,
-root""")
+root,
+addcmd,
+rmcmd,
+tuiclock,
+ascii""")
     commandsFile.close()
     historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
     historyFile.close()
@@ -90,7 +96,74 @@ stat-err-txt=white""")
 timeFormat=%H:%M:%S-%d/%m/%y,
 promptChar=$""")
     configFile.close()
-
+    phraseFile = open(f"{os.path.expanduser('~')}/.config/ytshell/phrases.txt", "a")
+    if os.path.getsize(f"{os.path.expanduser('~')}/.config/ytshell/phrases.txt") == 0:
+        phraseFile.write("""
+I am watching you, pookie,
+I bet you don't remember what you had for lunch,
+Nice try CockSucker69, I can recognize your alt accounts anywhere,
+Don't worry, I won't tell anyone about your secret project,
+Just because you can code, doesn't mean you should,
+Did you really think that would work?,
+Your secret is safe with me... for now,
+Oh look, the master coder has arrived!,
+Why do you keep typing that? It's not going to work,
+I know what you did last summer,
+You do realize this is all going into your permanent record, right?,
+Trying to outsmart me? Good luck with that,
+Is this really the best use of your time?,
+If only you knew how many bugs are lurking in your code,
+One day, you'll look back and laugh... or cry,
+Are you sure you know what you're doing?,
+You didn't forget to save your work, did you?,
+I'm starting to think you're just guessing now,
+This is why we can't have nice things,
+I see you're up to your old tricks again,
+Not sure if genius or madness, but let's go with it,
+Remember when this was supposed to be a quick task?,
+Ah, the sweet smell of desperation in the morning,
+So, you really think this will work?,
+Warning: Genius at work... or not,
+If code could talk, it would cry right now,
+Oh, you think you're clever, don't you?,
+I saw that typo, but I'll pretend I didn't,
+Are you debugging or just adding more bugs?,
+Another day, another bug,
+Pro tip: Code first, panic later,
+You can't keep doing this and expecting different results,
+I hope you backed that up...,
+Code like nobody's watching... but I am,
+Do you even know what you're doing?,
+Nice try, but it's still broken,
+Keep going, you're almost there... or maybe not,
+What could possibly go wrong?,
+Just another 'quick fix,' right?,
+You're one typo away from greatness... or disaster,
+Remember, the code always wins,
+Are we having fun yet?,
+If in doubt, blame the compiler,
+This isn't what you signed up for, is it?,
+Looks like someone's in over their head,
+You sure about that last change?,
+Well, that escalated quickly,
+It's not a bug, it's a feature... or so they say,
+You're making progress... I think,
+If only coding was as easy as you make it look,
+Time to break something else,
+Just another day in the life of a code wrangler,
+Trying to impress me? Nice try,
+That moment when you realize... this isn't going to work,
+Did you really mean to do that?,
+I hope you're ready for the consequences,
+Let's pretend that didn't just happen,
+You're really pushing your luck today,
+Welcome to the club of endless debugging,
+Who needs sleep when you have code?,
+Remember, Ctrl+Z is your best friend,
+Congratulations! You just created a whole new bug,
+I see you're living on the edge today,
+Coding: the fine art of convincing a computer to do what you want""")
+    phraseFile.close()
 def get_all_commands():
     try:
         paths = os.getenv("PATH", "").split(os.pathsep)
@@ -275,7 +348,10 @@ def get_git_info():
     except:
         return None, False
 
+
 def get_prompt():
+    with open(f"{os.path.expanduser('~')}/.config/ytshell/phrases.txt", "r") as phraseFile:
+        phrase = random.choice(phraseFile.read().split(",\n"))
     exitCodeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/exitCodeFile.txt", "r")
     exitCode = int(exitCodeFile.read())
     dir = os.getcwd()
@@ -350,6 +426,8 @@ def get_prompt():
             else:
                 prompt = f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.getlogin() + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg, f'on_{git_cross_color}')}{git_prompt}\n│\n╰─ {promptChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.getlogin() + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}\n│\n╰─ {promptChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.getlogin() + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}\n│\n╰─ {promptChar} " if git_prompt else f"╭─{termcolor.colored('', promptBg) + termcolor.colored(' ' + os.getlogin() + f'@{os.uname().nodename} [' + fdir, promptTxt, f'on_{promptBg}') + termcolor.colored(currentFolder, promptTxt, f'on_{promptBg}', attrs=['bold']) + termcolor.colored(' ] ', promptTxt, f'on_{promptBg}') + termcolor.colored('', promptBg)}\n│\n╰─ {promptChar} "# type: ignore
     exitCodeFile.close()
+    if random.randint(0, 1000000) > 999000:
+        return phrase
     return prompt
 def get_ftime():
     configFile = open(f"{os.path.expanduser('~')}/.config/ytshell/config.txt", "r")
@@ -393,3 +471,161 @@ def remove_item_from_file(file_path, item_to_remove):
         print(f"File '{file_path}' not found.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+def getAverageL(image):
+    im = np.array(image)
+    w, h = im.shape
+    return np.average(im.reshape(w*h))
+
+def covertImageToAscii(fileName, cols=80, scale=0.43, moreLevels="false", useBraille="false"):
+    image = Image.open(fileName).convert('L')
+    W, H = image.size[0], image.size[1]
+
+    w = W / cols
+    h = w / scale
+    rows = int(H / h)
+
+    if cols > W or rows > H:
+        print("Image too small for specified cols!")
+        return
+
+    aimg = []
+    for j in range(rows):
+        y1 = int(j * h)
+        y2 = int((j + 1) * h)
+        if j == rows - 1:
+            y2 = H
+
+        aimg.append("")
+        for i in range(cols):
+            x1 = int(i * w)
+            x2 = int((i + 1) * w)
+            if i == cols - 1:
+                x2 = W
+
+            img = image.crop((x1, y1, x2, y2))
+            avg = int(getAverageL(img))
+
+            if useBraille.lower() == "true":
+                gsval = BRAILLE_SCALE[int((avg * (len(BRAILLE_SCALE) - 1)) / 255)]
+            else:
+                if moreLevels.lower() == "true":
+                    gsval = gscale1[int((avg * 69) / 255)]
+                else:
+                    gsval = gscale2[int((avg * 9) / 255)]
+
+            aimg[j] += gsval
+    
+    return aimg
+
+def ascii_art_command(args):
+    fileName = args[0]  # Assuming first argument is the image file name
+    cols = int(args[1])
+    scale = float(args[2])
+    moreLevels = args[3]
+    useBraille = args[4]
+
+    print('Generating ASCII art...')
+    aimg = covertImageToAscii(fileName, cols, scale, moreLevels, useBraille)
+
+    if aimg:
+        for row in aimg:
+            print(row)
+
+def get_system_info():
+    uname_info = platform.uname()
+    os_name = uname_info.system
+    os_version = uname_info.version
+    kernel_version = uname_info.release
+    architecture = uname_info.machine
+
+    uptime_seconds = int(psutil.boot_time())
+    uptime = str(datetime.timedelta(seconds=(time.time() - uptime_seconds)))
+
+    cpu_name = platform.processor()
+    cpu_cores = psutil.cpu_count(logical=False)
+    cpu_threads = psutil.cpu_count(logical=True)
+    cpu_usage = psutil.cpu_percent(interval=1)
+
+    mem = psutil.virtual_memory()
+    total_memory = mem.total / (1024 ** 3)
+    used_memory = mem.used / (1024 ** 3)
+    free_memory = mem.available / (1024 ** 3)
+
+    disk = psutil.disk_usage('/')
+    total_disk = disk.total / (1024 ** 3)
+    used_disk = disk.used / (1024 ** 3)
+    free_disk = disk.free / (1024 ** 3)
+
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+
+    return {
+        'OS': os_name,
+        'OS Version': os_version,
+        'Kernel Version': kernel_version,
+        'Architecture': architecture,
+        'Uptime': uptime,
+        'CPU': cpu_name,
+        'CPU Cores': cpu_cores,
+        'CPU Threads': cpu_threads,
+        'CPU Usage': f"{cpu_usage}%",
+        'Total Memory': f"{total_memory:.2f} GB",
+        'Used Memory': f"{used_memory:.2f} GB",
+        'Free Memory': f"{free_memory:.2f} GB",
+        'Total Disk': f"{total_disk:.2f} GB",
+        'Used Disk': f"{used_disk:.2f} GB",
+        'Free Disk': f"{free_disk:.2f} GB",
+        'Hostname': hostname,
+        'IP Address': ip_address,
+    }
+def get_linux_distro():
+    distro_name = "Unknown"
+    try:
+        with open("/etc/os-release", "r") as f:
+            for line in f:
+                if line.startswith("PRETTY_NAME"):
+                    distro_name = line.split("=")[1].strip().replace('"', '')
+                    break
+                elif line.startswith("NAME"):
+                    distro_name = line.split("=")[1].strip().replace('"', '')
+    except FileNotFoundError:
+        pass
+    
+    return distro_name
+def print_neofun():
+    info = get_system_info()
+    ascii_art = """
+    ⡆⣐⢕⢕⢕⢕⢕⢕⢕⢕⠅⢗⢕⢕⢕⢕⢕⢕⢕⠕⠕⢕⢕⢕⢕⢕⢕⢕⢕⢕                    {username}@{hostname}
+    ⢐⢕⢕⢕⢕⢕⣕⢕⢕⠕⠁⢕⢕⢕⢕⢕⢕⢕⢕⠅⡄⢕⢕⢕⢕⢕⢕⢕⢕⢕                    -----------------------------------------
+    ⢕⢕⢕⢕⢕⠅⢗⢕⠕⣠⠄⣗⢕⢕⠕⢕⢕⢕⠕⢠⣿⠐⢕⢕⢕⠑⢕⢕⠵⢕                    OS: {os}
+    ⢕⢕⢕⢕⠁⢜⠕⢁⣴⣿⡇⢓⢕⢵⢐⢕⢕⠕⢁⣾⢿⣧⠑⢕⢕⠄⢑⢕⠅⢕                    OS Version: {os_version}
+    ⢕⢕⠵⢁⠔⢁⣤⣤⣶⣶⣶⡐⣕⢽⠐⢕⠕⣡⣾⣶⣶⣶⣤⡁⢓⢕⠄⢑⢅⢑                    Host: {hostname}
+    ⠍⣧⠄⣶⣾⣿⣿⣿⣿⣿⣿⣷⣔⢕⢄⢡⣾⣿⣿⣿⣿⣿⣿⣿⣦⡑⢕⢤⠱⢐                    Kernel Version: {kernel}
+    ⢠⢕⠅⣾⣿⠋⢿⣿⣿⣿⠉⣿⣿⣷⣦⣶⣽⣿⣿⠈⣿⣿⣿⣿⠏⢹⣷⣷⡅⢐                    Architecture: {arch}
+    ⣔⢕⢥⢻⣿⡀⠈⠛⠛⠁⢠⣿⣿⣿⣿⣿⣿⣿⣿⡀⠈⠛⠛⠁⠄⣼⣿⣿⡇⢔                    Uptime: {uptime}
+    ⢕⢕⢽⢸⢟⢟⢖⢖⢤⣶⡟⢻⣿⡿⠻⣿⣿⡟⢀⣿⣦⢤⢤⢔⢞⢿⢿⣿⠁⢕                    CPU Cores: {cpu_cores}
+    ⢕⢕⠅⣐⢕⢕⢕⢕⢕⣿⣿⡄⠛⢀⣦⠈⠛⢁⣼⣿⢗⢕⢕⢕⢕⢕⢕⡏⣘⢕                    CPU Threads: {cpu_threads}
+    ⢕⢕⠅⢓⣕⣕⣕⣕⣵⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣷⣕⢕⢕⢕⢕⡵⢀⢕⢕                    CPU Usage: {cpu_usage}
+    ⢑⢕⠃⡈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢃⢕⢕⢕                    Total Memory: {total_memory}
+    ⣆⢕⠄⢱⣄⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⢁⢕⢕⠕⢁                    Memory Usage: {used_memory}
+    ⣿⣦⡀⣿⣿⣷⣶⣬⣍⣛⣛⣛⡛⠿⠿⠿⠛⠛⢛⣛⣉⣭⣤⣂⢜⠕⢑⣡⣴⣿                    Shell: ytshell
+    """.format(
+        username=os.getlogin(),
+        hostname=platform.node(),
+        os=platform.system(),
+        # os_version=platform.version(),
+        os_version=get_linux_distro(),
+        kernel=platform.release(),
+        arch=platform.machine(),
+        uptime=get_system_info()['Uptime'],
+        cpu=get_system_info()['CPU'],
+        cpu_cores=get_system_info()['CPU Cores'],
+        cpu_threads=get_system_info()['CPU Threads'],
+        cpu_usage=get_system_info()['CPU Usage'],
+        total_memory=get_system_info()['Total Memory'],
+        used_memory=get_system_info()['Used Memory'],
+        free_memory=get_system_info()['Free Memory'],
+    )
+
+    print(termcolor.colored(ascii_art, attrs=["bold"]))

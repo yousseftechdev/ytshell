@@ -7,7 +7,7 @@ if ! command -v python3 &>/dev/null; then
 fi
 
 # Install required Python modules
-pip3 install pyautogui termcolor
+pip3 install pyautogui termcolor numpy
 
 # Create the ytshell config directory
 mkdir -p ~/.config/ytshell
