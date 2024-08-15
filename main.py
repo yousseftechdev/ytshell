@@ -19,10 +19,12 @@ def main() -> None: # type: ignore
     commands = readCmdFile.read().split(",\n")
     commands[-1] = commands[-1].strip("\n")
     readCmdFile.close()
-    all_commands = funcs.get_all_commands()
-    
+    all_commands = funcs.get_all_commands()    
+    reminders = funcs.load_reminders()
+
     while True:
         try:
+            funcs.check_reminders()
             sys.stdout.write(f"\x1b]2;YTShell - {os.getcwd()}\x07")
             if funcs.is_interactive():
                 cmd = input(funcs.get_prompt())
@@ -539,6 +541,24 @@ Press Ctrl+C to exit''')
                             exitCodeFile.close()
                             print("Error: Invalid arguments")
                             funcs.usage_message("ascii")
+                case "remind":
+                    args = funcs.parse_remind_args(args)
+                    if args.get("clear"):
+                        reminders.clear()
+                        funcs.save_reminders(reminders)
+                        print("All reminders cleared.")
+                    elif args.get("list"):
+                        # List all reminders
+                        all_reminders = funcs.get_all_reminders()
+                        if all_reminders:
+                            for reminder in all_reminders:
+                                print(f"Reminder: {reminder['name']}, Times: {reminder['times']}, Time Interval: {reminder['time']} {reminder['timeType']}")
+                        else:
+                            print("No active reminders.")
+                    else:
+                        funcs.remind_command(args)
+                    exitCodeFile.write("0")
+                    exitCodeFile.close()
                 case "addcmd":
                     if not args:
                         exitCodeFile.write('20')

@@ -6,12 +6,13 @@ import turtle
 from math import * # type: ignore
 import subprocess
 import termcolor
-import datetime
+from datetime import datetime, timedelta
 import random
 import platform
 import psutil
 import socket
 import time
+import json
 
 # ASCII grayscale characters
 gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # type: ignore
@@ -370,7 +371,7 @@ def get_prompt():
     timeInPrompt = configContent[0].split("time=")[1]
     timeFormat = configContent[1].split("timeFormat=")[1]
     promptChar = configContent[2].split("promptChar=")[1]
-    dt = datetime.datetime.now()
+    dt = datetime.now()
     ftime = dt.strftime(timeFormat)
     themeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/theme.txt", "r")
     colors = themeFile.read().split(",\n")
@@ -437,7 +438,7 @@ def get_ftime():
     configFile = open(f"{os.path.expanduser('~')}/.config/ytshell/config.txt", "r")
     configContent = configFile.read().split(",\n")
     timeFormat = configContent[1].split("timeFormat=")[1]
-    dt = datetime.datetime.now()
+    dt = datetime.now()
     ftime = dt.strftime(timeFormat)
     return ftime
 
@@ -544,7 +545,7 @@ def get_system_info():
     architecture = uname_info.machine
 
     uptime_seconds = int(psutil.boot_time())
-    uptime = str(datetime.timedelta(seconds=(time.time() - uptime_seconds)))
+    uptime = str(timedelta(seconds=(time.time() - uptime_seconds)))
 
     cpu_name = platform.processor()
     cpu_cores = psutil.cpu_count(logical=False)
@@ -633,3 +634,138 @@ def print_neofun():
     )
 
     print(termcolor.colored(ascii_art, attrs=["bold"]))
+
+# File path to store reminders
+REMINDERS_FILE = f"{os.path.expanduser('~')}/.config/ytshell/reminders.json"
+
+# Load reminders from file
+def load_reminders():
+    try:
+        with open(REMINDERS_FILE, "r") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+# Save reminders to file
+def save_reminders(reminders):
+    with open(REMINDERS_FILE, "w") as file:
+        json.dump(reminders, file, default=str)
+
+# Load reminders on startup
+reminders = load_reminders()
+
+def parse_remind_args(command):
+    # Split the command into arguments
+    args = command.split()
+    parsed_args = {}
+
+    # Initialize flags and options
+    parsed_args["onStartUp"] = False
+    parsed_args["periodic"] = False
+    parsed_args["times"] = 1
+    parsed_args["time"] = 1
+    parsed_args["timeType"] = "seconds"
+    parsed_args["name"] = "Reminder"
+    parsed_args["clear"] = False  # New flag for clearing reminders
+    parsed_args["list"] = False  # New flag for clearing reminders
+
+    # Iterate through the arguments and update parsed_args accordingly
+    i = 0
+    while i < len(args):
+        if args[i] == "--clear":
+            parsed_args["clear"] = True  # Set the clear flag
+            return parsed_args  # Immediately return if --clear is found
+        elif args[i] == "--list":
+            parsed_args["list"] = True  # Set the clear flag
+            return parsed_args  # Immediately return if --list is found
+        elif args[i] == "--onStartUp":
+            parsed_args["onStartUp"] = True
+        elif args[i] == "--periodic":
+            parsed_args["periodic"] = True
+        elif args[i] == "--times" and i + 1 < len(args):
+            parsed_args["times"] = int(args[i + 1])
+            i += 1
+        elif args[i] == "--time" and i + 1 < len(args):
+            parsed_args["time"] = int(args[i + 1])
+            i += 1
+        elif args[i] == "--timeType" and i + 1 < len(args):
+            parsed_args["timeType"] = args[i + 1].lower()
+            i += 1
+        elif args[i] == "--name" and i + 1 < len(args):
+            parsed_args["name"] = args[i + 1]
+            i += 1
+        i += 1
+
+    return parsed_args
+
+def calculate_next_time(time_amount, time_type):
+    """Calculate the next reminder time based on the time type."""
+    time_types = {
+        'seconds': timedelta(seconds=time_amount),
+        'minutes': timedelta(minutes=time_amount),
+        'hours': timedelta(hours=time_amount),
+        'days': timedelta(days=time_amount),
+        'weeks': timedelta(weeks=time_amount),
+        # Months calculation is approximate, set to 30 days
+        'months': timedelta(days=30 * time_amount),
+    }
+    return time_types.get(time_type.lower(), timedelta(seconds=time_amount))
+
+def remind_command(args):
+    global reminders
+
+    # Parse arguments
+    try:
+        reminder_type = args.get("onStartUp") if "onStartUp" in args else args.get("periodic")
+        times = int(args.get("times", 1))
+        time_amount = int(args.get("time", 1))
+        time_type = args.get("timeType", "seconds").lower()
+        name = args.get("name", "Reminder")
+        
+        # Calculate the time interval for the reminder
+        time_interval = calculate_next_time(time_amount, time_type)
+        next_reminder_time = datetime.now() + time_interval
+        
+        reminder_data = {
+            "name": name,
+            "interval": time_interval.total_seconds(),
+            "times": times,
+            "type": "onStartUp" if reminder_type == "onStartUp" else "periodic",
+            "next_reminder": next_reminder_time.isoformat()
+        }
+
+        reminders.append(reminder_data)
+        save_reminders(reminders)
+
+        print(f"Reminder '{name}' set! Will remind once every {time_amount} {time_type} for {times} times .")
+    except Exception as e:
+        print(f"Error: {e}")
+
+def check_reminders():
+    global reminders
+    current_time = datetime.now()
+
+    for reminder in reminders[:]:
+        next_reminder_time = datetime.fromisoformat(reminder["next_reminder"])
+
+        if next_reminder_time <= current_time:
+            print(f"Reminder: {reminder['name']}")
+
+            if reminder["times"] > 0:
+                reminder["times"] -= 1
+                if reminder["times"] == 0:
+                    reminders.remove(reminder)
+                    continue
+
+            # Update the next reminder time
+            next_reminder_time += timedelta(seconds=reminder["interval"])
+            reminder["next_reminder"] = next_reminder_time.isoformat()
+            print(f"Next reminder in {str(next_reminder_time - current_time)}.")
+
+    # Save the updated reminders back to the file
+    save_reminders(reminders)
+
+def get_all_reminders():
+    """Returns a list of all active reminders."""
+    reminders = load_reminders()  # Load the reminders from the file
+    return reminders
