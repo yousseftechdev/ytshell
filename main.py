@@ -284,33 +284,6 @@ def main() -> None: # type: ignore
                         exitCodeFile.close()
                         print(f"Error: Invalid arguments")
                         funcs.usage_message("ask")
-                case "mc":
-                    try:
-                        rfile = open(f"{os.path.expanduser('~')}/.config/ytshell/pathToJar.txt", "r")
-                        path = rfile.read()
-                        if not args:
-                            if not path:
-                                exitCodeFile.write('20')
-                                exitCodeFile.close()
-                                print(f"Error: Invalid arguments")
-                                print("Use the option '-config' to set the path to your games jar file.")
-                            else:
-                                exitCodeFile.write(str(subprocess.run("java -jar " + path, shell=True).returncode))
-                                exitCodeFile.close()
-                        
-                        elif "-config" in args:
-                            wfile = open(f"{os.path.expanduser('~')}/.config/ytshell/pathToJar.txt", "w")
-                            print(args.strip("-config "))
-                            wfile.write(args.strip("-config "))
-                            wfile.close()
-                        rfile.close()
-                        exitCodeFile.write('0')
-                        exitCodeFile.close()
-
-                    except:
-                        exitCodeFile.write('1')
-                        exitCodeFile.close()
-                        print(f"Error: Unkown")
                 case "setrepo":
                     if not args:
                         exitCodeFile.write('20')
