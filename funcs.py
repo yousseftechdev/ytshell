@@ -361,7 +361,7 @@ def get_git_info():
             color = 'light_red'
 
         git_info = (
-            termcolor.colored(f' {branch}{modified}{created}{deleted}{staged_modified}{staged_added}{staged_deleted}', 'white', f'on_{color}') # type: ignore
+            termcolor.colored(f' {branch}{modified}{created}{deleted}{staged_modified}{staged_added}{staged_deleted} ', 'white', f'on_{color}') # type: ignore
             + termcolor.colored('', color)
         )
 
