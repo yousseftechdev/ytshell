@@ -1,0 +1,13 @@
+name: Repo Visualizer
+uses: githubocto/repo-visualizer@0.9.1
+with:
+  output_file: null
+  excluded_paths: null
+  excluded_globs: null
+  root_path: null
+  max_depth: null
+  commit_message: null
+  branch: null
+  should_push: null
+  artifact_name: null
+  file_colors: null
