@@ -326,31 +326,48 @@ def graph(equ, res):
 
 def get_git_info():
     try:
-        # Get the current branch name
         branch = subprocess.check_output(
             ['git', 'rev-parse', '--abbrev-ref', 'HEAD'], stderr=subprocess.DEVNULL
         ).strip().decode('utf-8')
 
-        # Get the status of files
         status = subprocess.check_output(['git', 'status', '--short'], stderr=subprocess.DEVNULL).decode('utf-8')
+
         modified = f" !{str(len([line for line in status.splitlines() if line.startswith(' M ')]))} "
         created = f" ?{str(len([line for line in status.splitlines() if line.startswith('??')]))} "
         deleted = f" #{str(len([line for line in status.splitlines() if line.startswith(' D ')]))} "
+        
+        staged_modified = f" ~{str(len([line for line in status.splitlines() if line.startswith('M ')]))} "
+        staged_added = f" +{str(len([line for line in status.splitlines() if line.startswith('A ')]))} "
+        staged_deleted = f" -{str(len([line for line in status.splitlines() if line.startswith('D ')]))} "
+
         if created == ' ?0 ':
             created = ''
         if modified == ' !0 ':
             modified = ''
         if deleted == ' #0 ':
             deleted = ''
-        if created == '' and deleted == '' and modified == '':
+        if staged_modified == ' ~0 ':
+            staged_modified = ''
+        if staged_added == ' +0 ':
+            staged_added = ''
+        if staged_deleted == ' -0 ':
+            staged_deleted = ''
+        
+        if not any([created, deleted, modified, staged_modified, staged_added, staged_deleted]):
             repoUtd = True
             color = 'light_green'
         else:
             repoUtd = False
             color = 'light_red'
-        git_info = termcolor.colored(f' {branch}{modified}{created}{deleted}', 'white', f'on_{color}')+termcolor.colored('', color) # type: ignore
+
+        git_info = (
+            termcolor.colored(f' {branch}{modified}{created}{deleted}{staged_modified}{staged_added}{staged_deleted}', 'white', f'on_{color}') # type: ignore
+            + termcolor.colored('', color)
+        )
+
         return git_info, repoUtd
-    except:
+
+    except Exception as e:
         return None, False
 
 
