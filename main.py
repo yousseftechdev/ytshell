@@ -455,17 +455,6 @@ promptChar={arg[2]}""")
                         exitCodeFile.close()
                         print(f"Error: Invalid arguments")
                         funcs.usage_message("config")
-                case "graph":
-                    try:
-                        print("Click on the graph window to exit")
-                        funcs.graph(args.split(",")[0].lower().replace("^", "**"), args.split(",")[1])
-                        exitCodeFile.write('0')
-                        exitCodeFile.close()
-                    except:
-                        exitCodeFile.write('20')
-                        exitCodeFile.close()
-                        print("Error: Invalid arguments")
-                        funcs.usage_message("graph")
                 case "tuiclock":
                     while True:
                         print(f'''

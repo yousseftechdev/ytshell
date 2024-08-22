@@ -24,13 +24,6 @@ BRAILLE_SCALE = [
     '⣿', '⡟', '⡏', '⡇', '⡆', '⡄', '⡀', '⠂',
 ]
 
-# Graph setup
-ww = 1800
-wh = 800
-
-hww = ww/2
-hwh = wh/2
-
 def setup():
     os.makedirs(f"{os.path.expanduser('~')}/.config/ytshell", exist_ok=True)
     exitCodeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/exitCodeFile.txt", "w")
@@ -259,11 +252,6 @@ light_magenta, light_cyan.""")
         print("Show current prompt settings and allows you to edit them.")
         print("Options:\n-edit : Sets the settings for the shell prompt, used like this: config -edit (SHOW TIME AND DATE: t/f) (TIME FORMAT) (PROMPT CHARACTER: $)")
         print("\nIf you want to edit the colors by hand, the theme file is at ~/.config/ytshell/config.txt")
-    elif command == "graph":
-        print("Usage: graph (EQUATION),(RESOLUTION)")
-        print("Graphs an equation using the turtle library, the exponent operator is '**' not '^'.")
-        print("Functions like: sin(), cos(), tan(), log(), and factorial() are available.")
-        print("ONLY USE THE X VARIABLE IN YOUR EQUATION")
     elif command == "addcmd":
         print("Usage: addcmd (CUSTOM COMMAND)")
         print("This command is used to add custom commands to the shell, it appends the command name to the commands.txt file located at '~/.config/ytshell/commands.txt'.")
@@ -284,45 +272,6 @@ def is_interactive():
         return os.isatty(sys.stdin.fileno())
     except Exception:
         return False
-def graph(equ, res):
-    wn = turtle.Screen()
-
-    wn.setup(ww, wh)
-    wn.bgcolor("black")
-
-    pen = turtle.Turtle()
-    pen.color("white")
-    pen.speed(0)
-    pen.width(2)
-    pen.goto(0, hwh)
-    pen.write("y", font=("monospace", 20, "bold"))
-    pen.goto(0,-hwh)
-    pen.goto(0, 0)
-    pen.goto(hww, 0)
-    pen.write("x", font=("monospace", 20, "bold"))
-    pen.goto(-hww, 0)
-    pen.hideturtle()
-    
-    func = turtle.Turtle()
-    func.hideturtle()
-    func.color("cyan")
-    func.speed(0)
-    func.width(2)
-    
-    for i in range(int(-hww), int(hww), int(res)):
-        if i == -hww:
-            func.penup()
-            x = i
-            y = eval(equ)
-            func.goto(x, y)
-            func.pendown()
-        elif i == 0:
-            pass
-        else:
-            x = i
-            y = eval(equ)
-            func.goto(x, y)
-    wn.exitonclick()
 
 def get_git_info():
     try:
