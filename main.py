@@ -9,7 +9,7 @@ import time
 import funcs
 import datetime
 import termcolor
-scriptLocation = os.getcwd()
+scriptLocation = f"{os.getcwd()}/.config/ytshell"
 def main() -> None: # type: ignore
     funcs.setup()
 
