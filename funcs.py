@@ -599,7 +599,7 @@ def print_neofun():
         free_memory=get_system_info()['Free Memory'],
     )
 
-    print(termcolor.colored(ascii_art, attrs=["bold"]))
+    print(termcolor.colored(ascii_art))
 
 # File path to store reminders
 REMINDERS_FILE = f"{os.path.expanduser('~')}/.config/ytshell/reminders.json"

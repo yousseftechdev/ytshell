@@ -30,9 +30,8 @@ def main() -> None: # type: ignore
                 cmd = input(funcs.get_prompt())
                 exitCodeFile = open(f"{os.path.expanduser('~')}/.config/ytshell/exitCodeFile.txt", "w")
                 if cmd:
-                    historyFile = open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a")
-                    historyFile.write(f"{cmd}\n")
-                    historyFile.close()
+                    with open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "a") as historyFile:
+                        historyFile.write(f"{cmd}\n")
             else:
                 print("Running in a non-interactive mode. Exiting.")
                 break
@@ -52,10 +51,6 @@ def main() -> None: # type: ignore
                     if cmd == "ls":
                         exitCodeFile.write(str(subprocess.run(f"ls --color=auto {args}", shell=True).returncode))
                         exitCodeFile.close()
-                    elif cmd == "-":
-                        with open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "r") as historyFile:
-                            exitCodeFile.write(str(subprocess.run(historyFile.read().split("\n")[-1], shell=True).returncode))
-                            exitCodeFile.close()
                     else:
                         exitCodeFile.write(str(subprocess.run(f"{cmdSplit} {args}", shell=True).returncode))
                         exitCodeFile.close()
