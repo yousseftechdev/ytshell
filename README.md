@@ -111,7 +111,7 @@ To install YTShell, follow these steps:
 
 2. **Clone the repo**:
     ```bash
-    git clone https://github.com/youssef-mostafa1534/YTShell
+    git clone https://github.com/yousseftechdev/YTShell
     ```
 
 2. **Run the Install Script**: `cd` into the cloned repo and run the `install.sh` script:

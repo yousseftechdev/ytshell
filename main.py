@@ -64,7 +64,7 @@ def main() -> None: # type: ignore
                 case "dev":
                     match args:
                         case "-info":
-                            exitCodeFile.write(str(subprocess.run("xdg-open http://youssef-mostafa1534.github.io/NewModernPortfolio", shell=True).returncode))
+                            exitCodeFile.write(str(subprocess.run("xdg-open http://yousseftechdev.github.io/NewModernPortfolio", shell=True).returncode))
                             exitCodeFile.close()
                         case "-yt":
                             exitCodeFile.write(str(subprocess.run("xdg-open https://www.youtube.com/channel/UC00bH694nxRfyRQAWhhu5Mw", shell=True).returncode))
@@ -75,7 +75,7 @@ def main() -> None: # type: ignore
                             exitCodeFile.write('0')
                             exitCodeFile.close()
                         case "-github":
-                            exitCodeFile.write(str(subprocess.run("xdg-open http://github.com/youssef-mostafa1534", shell=True).returncode))
+                            exitCodeFile.write(str(subprocess.run("xdg-open http://github.com/yousseftechdev", shell=True).returncode))
                             exitCodeFile.close()
                         case _:
                             exitCodeFile.write('20')
