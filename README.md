@@ -80,7 +80,7 @@ The `config` command allows you to configure various operational settings for YT
   Example:
   
   ```bash
-  config -edit true 24h $
+  config -edit true %H:%M:%S-%d/%m/%y $
   ```
   
   This command enables the time display in 24-hour format and sets the prompt symbol to `$`.
