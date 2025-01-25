@@ -546,15 +546,6 @@ Press Ctrl+C to exit''')
                     exitCodeFile.write('0')
                     exitCodeFile.close()
                     exit()
-                case "-":
-                    # run last used command
-                    with open(f"{os.path.expanduser('~')}/.config/ytshell/history.txt", "r") as historyFile:
-                        history = historyFile.read().split("\n")
-                        history = history[:-1]
-                        lastCommand = history[-1]
-                        exitCodeFile.write(str(subprocess.run(lastCommand, shell=True).returncode))
-                        exitCodeFile.close()
-                    
                 case _:
                     exitCodeFile.write('126')
                     exitCodeFile.close()
